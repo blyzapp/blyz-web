@@ -9,14 +9,8 @@ export default function WaitlistSection() {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
-  // -----------------------------
-  // 🌐 Live Render Backend
-  // -----------------------------
   const API_URL = "https://blyz-api.onrender.com/api";
 
-  // -----------------------------
-  // Join waitlist function
-  // -----------------------------
   const joinWaitlist = async () => {
     if (!email || !email.includes("@")) {
       setError("Please enter a valid email.");
@@ -45,6 +39,7 @@ export default function WaitlistSection() {
         setSuccess("✅ You're officially on the waitlist!");
         setEmail("");
         setPhone("");
+        console.log("[DEBUG] Waitlist signup success");
       } else {
         setError(data.msg || "Something went wrong.");
         console.error("[DEBUG] Waitlist API error:", data);
@@ -72,14 +67,13 @@ export default function WaitlistSection() {
         Join the waitlist — launching soon across Toronto & GTA.
       </p>
 
-      {/* Email + Phone */}
       <div className="relative z-10 mt-10 mx-auto max-w-md flex flex-col gap-4">
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email address"
-          className="w-full bg-white/10 border border-white/20 rounded-full px-4 py-3 text-white placeholder-white/40 outline-none"
+          className="w-full h-11 px-4 rounded-full border border-white/20 bg-white/10 text-white placeholder-white/40 outline-none"
         />
 
         <input
@@ -87,13 +81,13 @@ export default function WaitlistSection() {
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           placeholder="Phone (optional)"
-          className="w-full bg-white/10 border border-white/20 rounded-full px-4 py-3 text-white placeholder-white/40 outline-none"
+          className="w-full h-11 px-4 rounded-full border border-white/20 bg-white/10 text-white placeholder-white/40 outline-none"
         />
 
         <button
           onClick={joinWaitlist}
           disabled={loading}
-          className="px-5 py-3 rounded-full bg-blue-500 text-black font-semibold hover:bg-blue-400 transition disabled:opacity-40"
+          className="h-11 px-5 rounded-full bg-blue-500 text-black font-semibold hover:bg-blue-400 transition disabled:opacity-50"
         >
           {loading ? "Joining..." : "Join Waitlist"}
         </button>

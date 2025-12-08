@@ -1,16 +1,20 @@
 // ============================================================================
-// 📝 Blyz Landing Page Waitlist Script — Live Render Backend (Final Corrected)
+// 📝 Waitlist Debug Script — Live Render Backend
 // ============================================================================
-const API_URL = "https://blyz-api.onrender.com/api"; // ✅ Live backend
+const API_URL = "https://blyz-api.onrender.com/api";
 
-// Grab form elements safely
-const form = document.getElementById("waitlist-form");
-const emailInput = document.getElementById("waitlist-email");
-const phoneInput = document.getElementById("waitlist-phone");
-const submitBtn = document.getElementById("waitlist-submit");
-const statusMsg = document.getElementById("waitlist-status");
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("waitlist-form");
+  const emailInput = document.getElementById("waitlist-email");
+  const phoneInput = document.getElementById("waitlist-phone");
+  const submitBtn = document.getElementById("waitlist-submit");
+  const statusMsg = document.getElementById("waitlist-status");
 
-if (form && emailInput && submitBtn && statusMsg) {
+  if (!form || !emailInput || !submitBtn || !statusMsg) {
+    console.warn("Waitlist form elements not found. Script not attached.");
+    return;
+  }
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -20,7 +24,7 @@ if (form && emailInput && submitBtn && statusMsg) {
     if (!email || !email.includes("@")) {
       statusMsg.textContent = "Please enter a valid email.";
       statusMsg.style.color = "red";
-      console.warn("Waitlist submission blocked: invalid email");
+      console.warn("Blocked submission: invalid email");
       return;
     }
 
@@ -28,7 +32,7 @@ if (form && emailInput && submitBtn && statusMsg) {
     statusMsg.textContent = "Joining…";
     statusMsg.style.color = "#000";
 
-    console.log("Submitting waitlist email:", email);
+    console.log("[DEBUG] Submitting waitlist email:", email);
 
     try {
       const res = await fetch(`${API_URL}/waitlist/join`, {
@@ -37,29 +41,29 @@ if (form && emailInput && submitBtn && statusMsg) {
         body: JSON.stringify({ email, phone }),
       });
 
-      console.log("Fetch response status:", res.status);
+      console.log("[DEBUG] Response status:", res.status);
 
       const data = await res.json();
+      console.log("[DEBUG] Response JSON:", data);
 
       if (data.ok) {
         statusMsg.textContent = "✅ You're officially on the waitlist!";
         statusMsg.style.color = "green";
         emailInput.value = "";
         if (phoneInput) phoneInput.value = "";
-        console.log("Waitlist signup success:", data);
+        console.log("[DEBUG] Waitlist signup success");
       } else {
         statusMsg.textContent = "⚠ " + (data.msg || "Failed to join waitlist");
         statusMsg.style.color = "red";
-        console.error("Waitlist API error:", data);
+        console.error("[DEBUG] Waitlist API error:", data);
       }
     } catch (err) {
-      console.error("Waitlist fetch error:", err);
+      console.error("[DEBUG] Fetch error:", err);
       statusMsg.textContent = "⚠ Server unavailable. Please try again later.";
       statusMsg.style.color = "red";
     } finally {
       submitBtn.disabled = false;
+      console.log("[DEBUG] Button re-enabled");
     }
   });
-} else {
-  console.warn("Waitlist form elements not found. Script not attached.");
-}
+});
