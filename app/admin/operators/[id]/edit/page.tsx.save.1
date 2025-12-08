@@ -1,0 +1,190 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import api from "@/lib/api";
+
+// ---------------------
+// Types
+// ---------------------
+interface OperatorData {
+  _id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  city?: string;
+  status?: string;
+  joinedAt?: string;
+}
+
+// ---------------------
+// Page Component
+// ---------------------
+export default function EditOperatorPage() {
+  const { id } = useParams();
+  const router = useRouter();
+
+  const [operator, setOperator] = useState<OperatorData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const ADMIN_TOKEN = process.env.NEXT_PUBLIC_ADMIN_TOKEN;
+  const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
+  // ----------------------------------------
+  // Load operator
+  // ----------------------------------------
+  useEffect(() => {
+    if (!id || !BASE_URL || !ADMIN_TOKEN) return;
+
+    const load = async () => {
+      try {
+        const res = await api.get(`${BASE_URL}/admin/operators/${id}`, {
+          headers: { Authorization: `Bearer ${ADMIN_TOKEN}` },
+        });
+
+        if (!res.data?.ok) {
+          setError("Failed to load operator");
+          return;
+        }
+
+        setOperator(res.data.operator);
+        setError(null);
+      } catch (err) {
+        console.error(err);
+        setError("Server error loading operator");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [id, BASE_URL, ADMIN_TOKEN]);
+
+  // ----------------------------------------
+  // Save operator profile
+  // ----------------------------------------
+  const handleSave = async () => {
+    if (!operator) return;
+
+    try {
+      setSaving(true);
+
+      const res = await api.put(
+        `${BASE_URL}/admin/operators/${id}`,
+        { ...operator },
+        { headers: { Authorization: `Bearer ${ADMIN_TOKEN}` } }
+      );
+
+      if (!res.data?.ok) {
+        setError(res.data.message || "Failed to update operator");
+        setSaving(false);
+        return;
+      }
+
+      router.push(`/admin/operators/${id}`);
+    } catch (err) {
+      setError("Server error saving operator");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) return <div className="text-slate-300">Loading operator…</div>;
+  if (error || !operator)
+    return (
+      <div className="text-red-400">
+        Failed to load operator — {error}
+      </div>
+    );
+
+  // ----------------------------------------
+  // Page UI
+  // ----------------------------------------
+  return (
+    <main className="space-y-10 max-w-2xl">
+      <Link href={`/admin/operators/${id}`} className="text-sky-400 underline">
+        ← Back to Operator
+      </Link>
+
+      <h1 className="text-2xl font-semibold text-white">Edit Operator</h1>
+
+      <div className="bg-slate-950/40 border border-slate-800 rounded-xl p-6 space-y-5">
+
+        {/* Name */}
+        <Field
+          label="Name"
+          value={operator.name}
+          onChange={(v) => setOperator({ ...operator, name: v })}
+        />
+
+        {/* Email */}
+        <Field
+          label="Email"
+          value={operator.email || ""}
+          onChange={(v) => setOperator({ ...operator, email: v })}
+        />
+
+        {/* Phone */}
+        <Field
+          label="Phone"
+          value={operator.phone || ""}
+          onChange={(v) => setOperator({ ...operator, phone: v })}
+        />
+
+        {/* City */}
+        <Field
+          label="City"
+          value={operator.city || ""}
+          onChange={(v) => setOperator({ ...operator, city: v })}
+        />
+
+        {/* Status */}
+        <Field
+          label="Status"
+          value={operator.status || ""}
+          onChange={(v) => setOperator({ ...operator, status: v })}
+        />
+      </div>
+
+      {/* SAVE BUTTON */}
+      <button
+        onClick={handleSave}
+        disabled={saving}
+        className="bg-sky-600 hover:bg-sky-700 text-white py-2 px-5 rounded-lg text-sm font-semibold disabled:opacity-40"
+      >
+        {saving ? "Saving…" : "Save Changes"}
+      </button>
+
+      {error && <div className="text-red-400 text-sm">{error}</div>}
+    </main>
+  );
+}
+
+// ----------------------------------------
+// Simple Field Component
+// ----------------------------------------
+function Field({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="space-y-1">
+      <label className="text-xs uppercase text-slate-400">{label}</label>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-200 text-sm"
+      />
+    </div>
+  );
+}
+

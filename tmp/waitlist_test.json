@@ -1,0 +1,7 @@
+[
+  { "name": "Test User 1", "email": "test1@example.com", "joinedAt": "2025-12-06T18:00:00.000Z" },
+  { "name": "Test User 2", "email": "test2@example.com", "joinedAt": "2025-12-06T18:05:00.000Z" },
+  { "name": "Test User 3", "email": "test3@example.com", "joinedAt": "2025-12-06T18:10:00.000Z" }
+]
+
+
