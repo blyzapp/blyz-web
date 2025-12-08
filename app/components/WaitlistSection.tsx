@@ -18,7 +18,7 @@ export default function WaitlistSection() {
   // Join waitlist function
   // -----------------------------
   const joinWaitlist = async () => {
-    if (!email.includes("@")) {
+    if (!email || !email.includes("@")) {
       setError("Please enter a valid email.");
       return;
     }
@@ -28,13 +28,18 @@ export default function WaitlistSection() {
     setError("");
 
     try {
+      console.log("[DEBUG] Submitting waitlist email:", email);
+
       const res = await fetch(`${API_URL}/waitlist/join`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, phone }),
       });
 
+      console.log("[DEBUG] Fetch response status:", res.status);
+
       const data = await res.json();
+      console.log("[DEBUG] Response JSON:", data);
 
       if (data.ok) {
         setSuccess("✅ You're officially on the waitlist!");
@@ -42,12 +47,14 @@ export default function WaitlistSection() {
         setPhone("");
       } else {
         setError(data.msg || "Something went wrong.");
+        console.error("[DEBUG] Waitlist API error:", data);
       }
     } catch (err) {
-      console.error("Waitlist submission error:", err);
+      console.error("[DEBUG] Waitlist submission error:", err);
       setError("⚠ Server unavailable. Please try again later.");
     } finally {
       setLoading(false);
+      console.log("[DEBUG] Button re-enabled");
     }
   };
 
